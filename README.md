@@ -1,6 +1,6 @@
 # Twist
 
-Give your Vanilla JS a little twist.
+A simple build tool for wrangling your projects ES Module static import paths.
 
 ## Install
 
