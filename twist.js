@@ -16,10 +16,10 @@ const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv;
 
-let srcDir = argv.src ?? "./src";
+let srcDir = argv?.src ?? "./src";
 srcDir = path.resolve(cwd, srcDir);
 
-let outDir = argv?.out ?? "./public/js";
+let outDir = argv?.outdir ?? "./public/js";
 outDir = path.resolve(cwd, outDir);
 
 let config = argv.config ?? null;
@@ -30,7 +30,7 @@ if (config !== null){
 const fs = require("fs");
 const tempDir = path.join(__dirname, "temp");
 if (fs.existsSync(tempDir)){
-    fs.rmdirSync(tempDir, {recursive: true});
+    cleanup();
 }
 fs.mkdirSync(tempDir);
 
@@ -72,7 +72,6 @@ function scrub(){
         let scrubbed = 0;
         for (let i = 0; i < files.length; i++) {
             const filePath = files[i];
-            const filename = filePath.replace(/.*[\/\\]/g, "");
             fs.readFile(filePath, (error, buffer) => {
                 if (error) {
                     console.log(error);
