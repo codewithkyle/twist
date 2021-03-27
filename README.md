@@ -1,6 +1,6 @@
 # Twist
 
-A simple build tool for wrangling your projects ES Module static import paths.
+A simple build tool for wrangling your ES Module static import paths.
 
 ## Install
 
