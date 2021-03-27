@@ -13,6 +13,7 @@ npm i -S @codewithkyle/twist
 By default we will look for JavaScript/TypeScript files in the `src/` directory and will output to the `public/js` directory. If you do not provide a `--config` flag we will use the esbuild options displayed in the example below.
 
 ```json
+// package.json
 {
     "scripts": {
         "build": "twist --src=./path-to/source --outdir=./public/assets --config=./esbuild.config.js"
