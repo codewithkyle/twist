@@ -1,0 +1,17 @@
+{
+  "name": "@codewithkyle/twist",
+  "version": "1.0.0",
+  "description": "Give your Vanilla JS a little twist.",
+  "main": "twist.js",
+  "scripts": {
+    "test": ""
+  },
+  "author": "Kyle Andrews <codingwithkyle@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "cssmonster": "^0.3.1",
+    "esbuild": "^0.10.2",
+    "glob": "^7.1.6",
+    "yargs": "^16.2.0"
+  }
+}
