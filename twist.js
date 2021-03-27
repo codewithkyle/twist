@@ -19,7 +19,7 @@ const argv = yargs(hideBin(process.argv)).argv;
 let srcDir = argv.src ?? "./src";
 srcDir = path.resolve(cwd, srcDir);
 
-let outDir = argv.output ?? "./public/js";
+let outDir = argv?.out ?? "./public/js";
 outDir = path.resolve(cwd, outDir);
 
 let config = argv.config ?? null;
@@ -48,9 +48,12 @@ const jsFiles = glob.sync(`${srcDir}/**/*.js`) ?? [];
 const files = [...tsFiles, ...jsFiles];
 esbuildOptions.entryPoints = files;
 
+const { v4: uuid } = require('uuid');
+
 const { build } = require('esbuild');
 build(esbuildOptions)
 .then(async () => {
+    await scrub();
     if (fs.existsSync(outDir)){
         await fs.promises.rmdir(outDir, {recursive: true});
     }
@@ -62,6 +65,56 @@ build(esbuildOptions)
     console.log(e);
     process.exit(1);
 });
+
+function scrub(){
+    return new Promise((resolve) => {
+        const files = glob.sync(`${tempDir}/**/*.js`) ?? [];
+        let scrubbed = 0;
+        for (let i = 0; i < files.length; i++) {
+            const filePath = files[i];
+            const filename = filePath.replace(/.*[\/\\]/g, "");
+            fs.readFile(filePath, (error, buffer) => {
+                if (error) {
+                    console.log(error);
+                    process.exit(1);
+                }
+
+                let data = buffer.toString();
+
+                /** Grab everything between the string values for the import statement */
+                let importFilePaths = data.match(/(?<=from[\'\"]).*(?=[\'\"]\;)|(?<=from\s+[\'\"]).*(?=[\'\"]\;)/g);
+
+                if (importFilePaths) {
+                    importFilePaths.map(path => {
+                        if (new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(path) === false){
+                            /** Remove everything in the path except the file name */
+                            let pathFileName = path.replace(/.*[\/\\]/g, "").replace(/(\.ts)|(\.js)$/g, "");
+                            data = data.replace(`"${path}"`, `"./${pathFileName}.js"`);
+                        }
+                    });
+                }
+
+                const uid = uuid();
+                fs.writeFile(`${tempDir}/${uid}`, data, error => {
+                    if (error) {
+                        console.log(error);
+                        process.exit(1);
+                    }
+                    fs.copyFile(`${tempDir}/${uid}`, filePath, (error) => {
+                        if (error) {
+                            console.log(error);
+                            process.exit(1);
+                        }
+                        scrubbed++;
+                        if (scrubbed === files.length) {
+                            resolve();
+                        }
+                    });
+                });
+            });
+        }
+    });
+}
 
 function relocate(){
     return new Promise((resolve) => {
