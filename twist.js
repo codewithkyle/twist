@@ -81,7 +81,7 @@ function scrub(){
                 let data = buffer.toString();
 
                 /** Grab everything between the string values for the import statement */
-                let importFilePaths = data.match(/(?<=from[\'\"]).*(?=[\'\"]\;)|(?<=from\s+[\'\"]).*(?=[\'\"]\;)/g);
+                let importFilePaths = data.match(/(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g);
 
                 if (importFilePaths) {
                     importFilePaths.map(path => {
