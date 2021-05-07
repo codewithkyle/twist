@@ -16,7 +16,7 @@ By default we will look for JavaScript/TypeScript files in the `src/` directory 
 // package.json
 {
     "scripts": {
-        "build": "twist --src=./path-to/source --outdir=./public/assets --config=./esbuild.config.js"
+        "build": "twist --src=./path-to/source --outdir=./public/js --config=./esbuild.config.js"
     }
 }
 ```

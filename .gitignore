@@ -1,3 +1,5 @@
 node_modules
 .editorconfig
 .DS_Store
+web_modules
+test/public/js

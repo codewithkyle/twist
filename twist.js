@@ -45,7 +45,11 @@ esbuildOptions.outdir = tempDir;
 const glob = require("glob");
 const tsFiles = glob.sync(`${srcDir}/**/*.ts`) ?? [];
 const jsFiles = glob.sync(`${srcDir}/**/*.js`) ?? [];
-const files = [...tsFiles, ...jsFiles];
+const jsxFiles = glob.sync(`${srcDir}/**/*.jsx`) ?? [];
+const tsxFiles = glob.sync(`${srcDir}/**/*.tsx`) ?? [];
+const mjsFiles = glob.sync(`${srcDir}/**/*.mjs`) ?? [];
+const cjsFiles = glob.sync(`${srcDir}/**/*.cjs`) ?? [];
+const files = [...tsFiles, ...jsFiles, ...jsxFiles, ...tsxFiles, ...mjsFiles, ...cjsFiles];
 esbuildOptions.entryPoints = files;
 
 const { v4: uuid } = require('uuid');
