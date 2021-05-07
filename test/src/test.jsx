@@ -6,4 +6,4 @@ class App extends Component {
   }
 }
 
-render(<App />, document.body);
+render(<App />, document.body.querySelector("#test-1"));
