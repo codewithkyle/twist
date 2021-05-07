@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2021-05-07
+
+### Added
+
+- support for the following file formats:
+    - `.jsx`
+    - `.tsx`
+    - `.mjs`
+    - `.cjs`
+
 ## [1.0.1] - 2021-04-09
 
 ### Fixed
@@ -22,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - source directory override flag
 - output directory override flag
 
-[unreleased]: https://github.com/codewithkyle/twist/compare/v1.0.1...HEAD
+[unreleased]: https://github.com/codewithkyle/twist/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/codewithkyle/twist/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/codewithkyle/twist/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/codewithkyle/twist/releases/tag/v1.0.0
