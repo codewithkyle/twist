@@ -42,6 +42,8 @@ const esbuildOptions = config ?? {
 };
 esbuildOptions.outdir = tempDir;
 
+const doBuild = argv?.["skip-build"] ? false : true;
+
 const glob = require("glob");
 const tsFiles = glob.sync(`${srcDir}/**/*.ts`) ?? [];
 const jsFiles = glob.sync(`${srcDir}/**/*.js`) ?? [];
@@ -49,28 +51,60 @@ const jsxFiles = glob.sync(`${srcDir}/**/*.jsx`) ?? [];
 const tsxFiles = glob.sync(`${srcDir}/**/*.tsx`) ?? [];
 const mjsFiles = glob.sync(`${srcDir}/**/*.mjs`) ?? [];
 const cjsFiles = glob.sync(`${srcDir}/**/*.cjs`) ?? [];
-const files = [...tsFiles, ...jsFiles, ...jsxFiles, ...tsxFiles, ...mjsFiles, ...cjsFiles];
-esbuildOptions.entryPoints = files;
 
-const { v4: uuid } = require('uuid');
-
-const { build } = require('esbuild');
-build(esbuildOptions)
-.then(async () => {
-    await scrub();
-    if (fs.existsSync(outDir)){
-        await fs.promises.rmdir(outDir, {recursive: true});
-    }
-    await fs.promises.mkdir(outDir, {recursive: true});
-    await relocate();
-    cleanup();
-})
-.catch((e) => {
-    console.log(e);
-    process.exit(1);
-});
+if (doBuild){
+    const files = [...tsFiles, ...jsFiles, ...jsxFiles, ...tsxFiles, ...mjsFiles, ...cjsFiles];
+    esbuildOptions.entryPoints = files;
+    const { build } = require('esbuild');
+    build(esbuildOptions)
+    .then(async () => {
+        await scrub();
+        if (fs.existsSync(outDir)){
+            await fs.promises.rmdir(outDir, {recursive: true});
+        }
+        await fs.promises.mkdir(outDir, {recursive: true});
+        await relocate();
+        cleanup();
+    })
+    .catch((e) => {
+        console.log(e);
+        process.exit(1);
+    });
+} else {
+    const files = [...jsFiles];
+    esbuildOptions.entryPoints = files;
+    new Promise((resolve, reject) => {
+        let copied = 0;
+        for (let i = 0; i < files.length; i++){
+            const fileName = files[i].replace(/.*[\/\\]/, "");
+            fs.copyFile(files[i], path.join(tempDir, fileName), (error) => {
+                if (error){
+                    reject(error);
+                }
+                copied++;
+                if (copied === files.length){
+                    resolve();
+                }
+            });
+        }
+    })
+    .then(async () => {
+        await scrub();
+        if (fs.existsSync(outDir)){
+            await fs.promises.rmdir(outDir, {recursive: true});
+        }
+        await fs.promises.mkdir(outDir, {recursive: true});
+        await relocate();
+        cleanup();
+    })
+    .catch(error => {
+        console.log(error);
+        process.exit(1);
+    });
+}
 
 function scrub(){
+    const { v4: uuid } = require('uuid');
     return new Promise((resolve) => {
         const files = glob.sync(`${tempDir}/**/*.js`) ?? [];
         let scrubbed = 0;
@@ -86,13 +120,13 @@ function scrub(){
 
                 /** Grab everything between the string values for the import statement */
                 let importFilePaths = data.match(/(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g);
-
                 if (importFilePaths) {
                     importFilePaths.map(path => {
                         if (new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(path) === false){
                             /** Remove everything in the path except the file name */
-                            let pathFileName = path.replace(/.*[\/\\]/g, "").replace(/(\.ts)|(\.js)$/g, "");
+                            let pathFileName = path.replace(/.*[\/\\]/g, "").replace(/\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g, "").trim();
                             data = data.replace(`"${path}"`, `"./${pathFileName}.js"`);
+                            data = data.replace(`'${path}'`, `"./${pathFileName}.js"`);
                         }
                     });
                 }

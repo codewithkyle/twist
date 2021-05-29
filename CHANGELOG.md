@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2021-05-29
+
+### Added
+
+- support for the `--skip-build` flag ([#4](https://github.com/codewithkyle/twist/issues/4))
+
+### Updated
+
+- esbuild to [v0.12.5](https://github.com/evanw/esbuild/releases/tag/v0.12.5)
+
+### Fixed
+
+- single quote static import statements where not being scrubbed correctly
+- now scrubbing mjs, cjs, jsx, and tsx file extensions from static import paths
+
 ## [1.2.0] - 2021-05-26
 
 ### Updated
@@ -38,7 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - source directory override flag
 - output directory override flag
 
-[unreleased]: https://github.com/codewithkyle/twist/compare/v1.2.0...HEAD
+[unreleased]: https://github.com/codewithkyle/twist/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/codewithkyle/twist/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/codewithkyle/twist/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/codewithkyle/twist/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/codewithkyle/twist/compare/v1.0.0...v1.0.1

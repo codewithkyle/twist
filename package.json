@@ -1,6 +1,6 @@
 {
   "name": "@codewithkyle/twist",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Give your Vanilla JS a little twist.",
   "main": "twist.js",
   "files": [
@@ -18,7 +18,7 @@
   "author": "Kyle Andrews <codingwithkyle@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "esbuild": "^0.12.3",
+    "esbuild": "^0.12.5",
     "esinstall": "^1.1.4",
     "glob": "^7.1.7",
     "semver": "^7.3.5",
