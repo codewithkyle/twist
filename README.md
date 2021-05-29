@@ -41,7 +41,7 @@ It means that minor releases for this library may contain an esbuild update that
 
 ### How to avoid breaking changes?
 
-**Option 1:** install [Babel](https://babeljs.io/), [TypeScript](https://www.typescriptlang.org/), or [esbuild](https://esbuild.github.io/) yourself and use the `--skip-build` flag. Then all you need to do is make sure the compiler you've selected runs first, then point the `--src` path to the compiler's JavaScript output directory.
+**Option 1:** install [Babel](https://babeljs.io/), [TypeScript](https://www.typescriptlang.org/), or [esbuild](https://esbuild.github.io/) yourself and use the `--skip-build` flag. Then all you need to do is make sure the compiler you've selected runs first and point the Twist `--src` path to your compiler's JavaScript output directory.
 
 **Option 2:** Accept that esbuild is under development and try to limit your use of their experimental build tools or API features. Also, thoroughly test everything whenever you update your NPM packages.
 
