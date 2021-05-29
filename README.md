@@ -31,7 +31,7 @@ module.exports = {
 }
 ```
 
-## Limit Breaking Changes
+## Managing Breaking Changes
 
 This project uses [esbuild](https://github.com/evanw/esbuild) as a dependency. Esbuild has **NOT** shipped a v1.0.0 meaning that minor releases of their library can contain breaking changes.
 
