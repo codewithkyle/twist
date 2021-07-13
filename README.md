@@ -31,7 +31,7 @@ module.exports = {
 }
 ```
 
-## Limit Breaking Changes
+## Managing Breaking Changes
 
 This project uses [esbuild](https://github.com/evanw/esbuild) as a dependency. Esbuild has **NOT** shipped a v1.0.0 meaning that minor releases of their library can contain breaking changes.
 
@@ -41,8 +41,14 @@ It means that minor releases for this library may contain an esbuild update that
 
 ### How to avoid breaking changes?
 
-**Option 1:** install [Babel](https://babeljs.io/), [TypeScript](https://www.typescriptlang.org/), or [esbuild](https://esbuild.github.io/) yourself and use the `--skip-build` flag. Then all you need to do is make sure the compiler you've selected runs first, then point the `--src` path to the compiler's JavaScript output directory.
+#### Option 1:
 
-**Option 2:** Accept that esbuild is under development and try to limit your use of their experimental build tools or API features. Also, thoroughly test everything whenever you update your NPM packages.
+Install [Babel](https://babeljs.io/), [TypeScript](https://www.typescriptlang.org/), or [esbuild](https://esbuild.github.io/) yourself and use the `--skip-build` flag. Then all you need to do is make sure the compiler you've selected runs first and point the Twist `--src` path to your compiler's JavaScript output directory.
 
-**Option 3:** Make sure this library does not contain the `^` character in the version number within your `package.json` file. This will force NPM to download the specified version instead of downloading the latest version whenever you perform the `npm update` or `npm install` commands. When you need to update this library you will need to manually adjust the library's version number within your `packages.json` file after reading through the [our changelog](https://github.com/codewithkyle/twist/blob/master/CHANGELOG.md) looking for esbuild updates. Before you update we suggest you need to read through the [esbuild changelog](https://github.com/evanw/esbuild/blob/master/CHANGELOG.md) and look for any breaking changes that they've introduced.
+#### Option 2:
+
+Accept that esbuild is under development and try to limit your use of their experimental build tools or API features. Also, thoroughly test everything whenever you update your NPM packages.
+
+#### Option 3:
+
+Make sure this library does not contain the `^` character in the version number within your `package.json` file. This will force NPM to download the specified version instead of downloading the latest version whenever you perform the `npm update` or `npm install` commands. When you need to update this library you will need to manually adjust the library's version number within your `packages.json` file after reading through the [our changelog](https://github.com/codewithkyle/twist/blob/master/CHANGELOG.md) looking for esbuild updates. Before you update we suggest you need to read through the [esbuild changelog](https://github.com/evanw/esbuild/blob/master/CHANGELOG.md) and look for any breaking changes that they've introduced.
