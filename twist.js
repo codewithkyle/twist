@@ -45,7 +45,7 @@ esbuildOptions.outdir = tempDir;
 const doBuild = argv?.["skip-build"] ? false : true;
 
 const glob = require("glob");
-const tsFiles = glob.sync(`${srcDir}/**/*.ts`) ?? [];
+const tsFiles = glob.sync(`${srcDir}/**/*[^\.d].ts`) ?? [];
 const jsFiles = glob.sync(`${srcDir}/**/*.js`) ?? [];
 const jsxFiles = glob.sync(`${srcDir}/**/*.jsx`) ?? [];
 const tsxFiles = glob.sync(`${srcDir}/**/*.tsx`) ?? [];
