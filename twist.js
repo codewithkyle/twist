@@ -22,6 +22,8 @@ srcDir = path.resolve(cwd, srcDir);
 let outDir = argv?.outdir ?? "./public/js";
 outDir = path.resolve(cwd, outDir);
 
+let pathOverride = argv?.path?.trim()?.replace(/\/$/, "") ?? ".";
+
 let config = argv.config ?? null;
 if (config !== null){
     config = require(path.resolve(cwd, config));
@@ -130,8 +132,8 @@ function scrub(){
                         if (new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(path) === false){
                             /** Remove everything in the path except the file name */
                             let pathFileName = path.replace(/.*[\/\\]/g, "").replace(/\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g, "").trim();
-                            data = data.replace(`"${path}"`, `"./${pathFileName}.js"`);
-                            data = data.replace(`'${path}'`, `"./${pathFileName}.js"`);
+                            data = data.replace(`"${path}"`, `"${pathOverride}/${pathFileName}.js"`);
+                            data = data.replace(`'${path}'`, `"${pathOverride}/${pathFileName}.js"`);
                         }
                     });
                 }

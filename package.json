@@ -1,6 +1,6 @@
 {
   "name": "@codewithkyle/twist",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Give your Vanilla JS a little twist.",
   "main": "twist.js",
   "files": [
