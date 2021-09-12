@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2021-09-12
+
+### Added
+
+- optional `path` flag allows developers to remap imports to a CDN or external URL
+
+### Fixed
+
+- TypeScript declaration file bug ([#6](https://github.com/codewithkyle/twist/issues/6))
+
 ## [1.3.1] - 2021-07-13
 
 ### Fixed
@@ -59,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - source directory override flag
 - output directory override flag
 
-[unreleased]: https://github.com/codewithkyle/twist/compare/v1.3.1...HEAD
+[unreleased]: https://github.com/codewithkyle/twist/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/codewithkyle/twist/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/codewithkyle/twist/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/codewithkyle/twist/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/codewithkyle/twist/compare/v1.1.0...v1.2.0
