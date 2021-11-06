@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2021-11-06
+
+### Added
+
+- `--minify` flag support ([#8](https://github.com/codewithkyle/twist/issues/8))
+- custom configs are now applied to the default config instead of replacing it (required to support future flags)
+
+### Updated
+
+- esbuild from v0.8 to v0.13
+
 ## [1.4.0] - 2021-09-12
 
 ### Added

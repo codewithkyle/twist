@@ -24,9 +24,17 @@ outDir = path.resolve(cwd, outDir);
 
 let pathOverride = argv?.path?.trim()?.replace(/\/$/, "") ?? ".";
 
-let config = argv.config ?? null;
+let config = argv?.config ?? null;
 if (config !== null){
     config = require(path.resolve(cwd, config));
+}
+if (typeof config !== "object"){
+    config = {};
+}
+
+if (argv?.minify){
+    const minify = argv.minify === 'false' ? false : true;
+    config.minify = minify;
 }
 
 const fs = require("fs");
@@ -36,12 +44,14 @@ if (fs.existsSync(tempDir)){
 }
 fs.mkdirSync(tempDir);
 
-const esbuildOptions = config ?? {
-    bundle: false,
-    minify: true,
-    format: "esm",
-    target: "es2020",
-};
+const esbuildOptions = Object.assign({
+        bundle: false,
+        minify: true,
+        format: "esm",
+        target: "es2020",
+    },
+    config,
+);
 esbuildOptions.outdir = tempDir;
 
 const doBuild = argv?.["skip-build"] ? false : true;
