@@ -12,8 +12,8 @@ if (!semver.satisfies(process.version, version)) {
 
 const path = require("path");
 const cwd = process.cwd();
-const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
+const yargs = require("yargs/yargs");
+const { hideBin } = require("yargs/helpers");
 const argv = yargs(hideBin(process.argv)).argv;
 
 let srcDir = argv?.src ?? "./src";
@@ -25,32 +25,35 @@ outDir = path.resolve(cwd, outDir);
 let pathOverride = argv?.path?.trim()?.replace(/\/$/, "") ?? ".";
 
 let config = argv?.config ?? null;
-if (config !== null){
+if (config !== null) {
     config = require(path.resolve(cwd, config));
+} else {
+    config = {};
 }
-if (typeof config !== "object"){
+if (typeof config !== "object") {
     config = {};
 }
 
-if (argv?.minify){
-    const minify = argv.minify === 'false' ? false : true;
+if (argv?.minify) {
+    const minify = argv.minify === "false" ? false : true;
     config.minify = minify;
 }
 
 const fs = require("fs");
 const tempDir = path.join(__dirname, "temp");
-if (fs.existsSync(tempDir)){
+if (fs.existsSync(tempDir)) {
     cleanup();
 }
 fs.mkdirSync(tempDir);
 
-const esbuildOptions = Object.assign({
+const esbuildOptions = Object.assign(
+    {
         bundle: false,
         minify: true,
         format: "esm",
         target: "es2020",
     },
-    config,
+    config
 );
 esbuildOptions.outdir = tempDir;
 
@@ -58,8 +61,8 @@ const doBuild = argv?.["skip-build"] ? false : true;
 
 const glob = require("glob");
 const tsFiles = glob.sync(`${srcDir}/**/*.ts`) ?? [];
-for (let i = tsFiles.length - 1; i >= 0; i--){
-    if (tsFiles[i].indexOf(".d.ts") !== -1){
+for (let i = tsFiles.length - 1; i >= 0; i--) {
+    if (tsFiles[i].indexOf(".d.ts") !== -1) {
         tsFiles.splice(i, 1);
     }
 }
@@ -69,59 +72,59 @@ const tsxFiles = glob.sync(`${srcDir}/**/*.tsx`) ?? [];
 const mjsFiles = glob.sync(`${srcDir}/**/*.mjs`) ?? [];
 const cjsFiles = glob.sync(`${srcDir}/**/*.cjs`) ?? [];
 
-if (doBuild){
+if (doBuild) {
     const files = [...tsFiles, ...jsFiles, ...jsxFiles, ...tsxFiles, ...mjsFiles, ...cjsFiles];
     esbuildOptions.entryPoints = files;
-    const { build } = require('esbuild');
+    const { build } = require("esbuild");
     build(esbuildOptions)
-    .then(async () => {
-        await scrub();
-        if (fs.existsSync(outDir)){
-            await fs.promises.rmdir(outDir, {recursive: true});
-        }
-        await fs.promises.mkdir(outDir, {recursive: true});
-        await relocate();
-        cleanup();
-    })
-    .catch((e) => {
-        console.log(e);
-        process.exit(1);
-    });
+        .then(async () => {
+            await scrub();
+            if (fs.existsSync(outDir)) {
+                await fs.promises.rmdir(outDir, { recursive: true });
+            }
+            await fs.promises.mkdir(outDir, { recursive: true });
+            await relocate();
+            cleanup();
+        })
+        .catch((e) => {
+            console.log(e);
+            process.exit(1);
+        });
 } else {
     const files = [...jsFiles];
     esbuildOptions.entryPoints = files;
     new Promise((resolve, reject) => {
         let copied = 0;
-        for (let i = 0; i < files.length; i++){
+        for (let i = 0; i < files.length; i++) {
             const fileName = files[i].replace(/.*[\/\\]/, "");
             fs.copyFile(files[i], path.join(tempDir, fileName), (error) => {
-                if (error){
+                if (error) {
                     reject(error);
                 }
                 copied++;
-                if (copied === files.length){
+                if (copied === files.length) {
                     resolve();
                 }
             });
         }
     })
-    .then(async () => {
-        await scrub();
-        if (fs.existsSync(outDir)){
-            await fs.promises.rmdir(outDir, {recursive: true});
-        }
-        await fs.promises.mkdir(outDir, {recursive: true});
-        await relocate();
-        cleanup();
-    })
-    .catch(error => {
-        console.log(error);
-        process.exit(1);
-    });
+        .then(async () => {
+            await scrub();
+            if (fs.existsSync(outDir)) {
+                await fs.promises.rmdir(outDir, { recursive: true });
+            }
+            await fs.promises.mkdir(outDir, { recursive: true });
+            await relocate();
+            cleanup();
+        })
+        .catch((error) => {
+            console.log(error);
+            process.exit(1);
+        });
 }
 
-function scrub(){
-    const { v4: uuid } = require('uuid');
+function scrub() {
+    const { v4: uuid } = require("uuid");
     return new Promise((resolve) => {
         const files = glob.sync(`${tempDir}/**/*.js`) ?? [];
         let scrubbed = 0;
@@ -138,10 +141,13 @@ function scrub(){
                 /** Grab everything between the string values for the import statement */
                 let importFilePaths = data.match(/(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g);
                 if (importFilePaths) {
-                    importFilePaths.map(path => {
-                        if (new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(path) === false){
+                    importFilePaths.map((path) => {
+                        if (new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(path) === false) {
                             /** Remove everything in the path except the file name */
-                            let pathFileName = path.replace(/.*[\/\\]/g, "").replace(/\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g, "").trim();
+                            let pathFileName = path
+                                .replace(/.*[\/\\]/g, "")
+                                .replace(/\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g, "")
+                                .trim();
                             data = data.replace(`"${path}"`, `"${pathOverride}/${pathFileName}.js"`);
                             data = data.replace(`'${path}'`, `"${pathOverride}/${pathFileName}.js"`);
                         }
@@ -149,7 +155,7 @@ function scrub(){
                 }
 
                 const uid = uuid();
-                fs.writeFile(`${tempDir}/${uid}`, data, error => {
+                fs.writeFile(`${tempDir}/${uid}`, data, (error) => {
                     if (error) {
                         console.log(error);
                         process.exit(1);
@@ -170,30 +176,29 @@ function scrub(){
     });
 }
 
-function relocate(){
+function relocate() {
     return new Promise((resolve) => {
         const files = glob.sync(`${tempDir}/**/*.js`) ?? [];
-        if (!files.length){
+        if (!files.length) {
             resolve();
-        } 
+        }
         let relocated = 0;
-        for (let i = 0; i < files.length; i++){
+        for (let i = 0; i < files.length; i++) {
             const fileName = files[i].replace(/.*[\///]/, "").trim();
             fs.copyFile(files[i], path.join(outDir, fileName), (error) => {
-                if (error){
+                if (error) {
                     console.log(error);
                     process.exit(1);
                 }
                 relocated++;
-                if (relocated === files.length){
+                if (relocated === files.length) {
                     resolve();
                 }
             });
         }
     });
-    
 }
 
-function cleanup(){
-    fs.rmdirSync(tempDir, {recursive: true});
+function cleanup() {
+    fs.rmdirSync(tempDir, { recursive: true });
 }
