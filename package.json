@@ -1,32 +1,32 @@
 {
-  "name": "@codewithkyle/twist",
-  "version": "1.5.0",
-  "description": "Give your Vanilla JS a little twist.",
-  "main": "twist.js",
-  "files": [
-    "twist.js"
-  ],
-  "bin": {
-    "twist": "./twist.js"
-  },
-  "engines": {
-    "node": ">=14.5.0"
-  },
-  "scripts": {
-    "test": "node ./twist.js --src=./test/src --config=./test/config.js --outdir=./test/public/js && serve ./test/public"
-  },
-  "author": "Kyle Andrews <codingwithkyle@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "esbuild": "^0.13.12",
-    "esinstall": "^1.1.7",
-    "glob": "^7.2.0",
-    "semver": "^7.3.5",
-    "uuid": "^8.3.2",
-    "yargs": "^16.2.0"
-  },
-  "devDependencies": {
-    "preact": "^10.5.15",
-    "serve": "^11.3.2"
-  }
+    "name": "@codewithkyle/twist",
+    "version": "1.5.1",
+    "description": "Give your Vanilla JS a little twist.",
+    "main": "twist.js",
+    "files": [
+        "twist.js"
+    ],
+    "bin": {
+        "twist": "./twist.js"
+    },
+    "engines": {
+        "node": ">=14.5.0"
+    },
+    "scripts": {
+        "test": "node ./twist.js --src=./test/src --config=./test/config.js --outdir=./test/public/js && serve ./test/public"
+    },
+    "author": "Kyle Andrews <codingwithkyle@gmail.com>",
+    "license": "MIT",
+    "dependencies": {
+        "esbuild": "^0.13.12",
+        "esinstall": "^1.1.7",
+        "glob": "^7.2.0",
+        "semver": "^7.3.5",
+        "uuid": "^8.3.2",
+        "yargs": "^16.2.0"
+    },
+    "devDependencies": {
+        "preact": "^10.5.15",
+        "serve": "^11.3.2"
+    }
 }
