@@ -26,31 +26,32 @@ outDir = path.resolve(cwd, outDir);
 
 let pathOverride = argv?.path?.trim()?.replace(/\/$/, "") ?? ".";
 
-let config = argv?.config ?? null;
-if (config !== null) {
-    config = require(path.resolve(cwd, config));
-} else {
-    config = {};
-}
-if (typeof config !== "object") {
-    config = {};
-}
-
-if (argv?.minify) {
-    const minify = argv.minify === "false" ? false : true;
-    config.minify = minify;
-}
-
 let type = "none";
 if (argv?.type) {
     type = argv.type?.toString().toLowerCase();
 }
-const types = ["esbuild", "tsc", "bable", "none"];
+const types = ["esbuild", "tsc", "babel", "none"];
 if (!types.includes(type)) {
     console.log(
         `Invalid type: ${type}. Only ${types.join(", ")} are supported.`
     );
     process.exit(1);
+}
+
+let config = argv?.config ?? null;
+if (type !== "none" && type !== "tsc") {
+    if (config !== null) {
+        config = require(path.resolve(cwd, config));
+    } else {
+        config = {};
+    }
+    if (typeof config !== "object") {
+        config = {};
+    }
+    if (argv?.minify) {
+        const minify = argv.minify === "false" ? false : true;
+        config.minify = minify;
+    }
 }
 
 const fs = require("fs");
@@ -73,6 +74,12 @@ switch (type) {
             config
         );
         options.outdir = tempDir;
+        break;
+    case "tsc":
+        if (Object.keys(options).length > 0) {
+            console.log("");
+        }
+        break;
     default:
         break;
 }
@@ -111,17 +118,46 @@ switch (type) {
         build(options)
             .then(async () => {
                 await scrub();
-                if (fs.existsSync(outDir)) {
-                    await fs.promises.rm(outDir, { recursive: true });
-                }
-                await fs.promises.mkdir(outDir, { recursive: true });
+                await prepOutput();
                 await relocate();
-                cleanup();
+                await cleanup();
             })
             .catch((e) => {
                 console.log(e);
                 process.exit(1);
             });
+        break;
+    case "tsc":
+        new Promise((resolve, reject) => {
+            const { exec } = require("child_process");
+            exec(
+                `tsc ${files.join(" ")} ${
+                    config !== null ? `--project ${config}` : ""
+                } --outDir ${tempDir} --allowJs true`,
+                (ex, out, err) => {
+                    if (err || ex) {
+                        console.log(out);
+                        reject(ex);
+                    }
+                    resolve();
+                }
+            );
+        })
+            .then(() => {
+                new Promise(async (resolve, reject) => {
+                    await scrub();
+                    await prepOutput();
+                    await relocate();
+                    await cleanup();
+                    resolve();
+                });
+            })
+            .catch((err) => {
+                process.exit(1);
+            });
+        break;
+    case "babel":
+        break;
     default:
         new Promise((resolve, reject) => {
             let copied = 0;
@@ -140,10 +176,7 @@ switch (type) {
         })
             .then(async () => {
                 await scrub();
-                if (fs.existsSync(outDir)) {
-                    await fs.promises.rm(outDir, { recursive: true });
-                }
-                await fs.promises.mkdir(outDir, { recursive: true });
+                await prepOutput();
                 await relocate();
                 cleanup();
             })
@@ -156,11 +189,15 @@ switch (type) {
 
 function scrub() {
     const { v4: uuid } = require("uuid");
-    return new Promise((resolve) => {
-        const files = glob.sync(`${tempDir}/**/*.js`) ?? [];
+    return new Promise(async (resolve) => {
+        const files = glob.sync(`${tempDir}/**/*`) ?? [];
+        await fs.promises.mkdir(path.join(tempDir, "clean"));
         let scrubbed = 0;
         for (let i = 0; i < files.length; i++) {
             const filePath = files[i];
+            const fileName = filePath
+                .replace(/.*[\\\/]|\.\w{2,4}$/g, "")
+                .trim();
             fs.readFile(filePath, (error, buffer) => {
                 if (error) {
                     console.log(error);
@@ -199,14 +236,10 @@ function scrub() {
                         }
                     });
                 }
-
-                const uid = uuid();
-                fs.writeFile(`${tempDir}/${uid}`, data, (error) => {
-                    if (error) {
-                        console.log(error);
-                        process.exit(1);
-                    }
-                    fs.copyFile(`${tempDir}/${uid}`, filePath, (error) => {
+                fs.writeFile(
+                    `${tempDir}/clean/${fileName}.js`,
+                    data,
+                    (error) => {
                         if (error) {
                             console.log(error);
                             process.exit(1);
@@ -215,8 +248,8 @@ function scrub() {
                         if (scrubbed === files.length) {
                             resolve();
                         }
-                    });
-                });
+                    }
+                );
             });
         }
     });
@@ -224,7 +257,7 @@ function scrub() {
 
 function relocate() {
     return new Promise((resolve) => {
-        const files = glob.sync(`${tempDir}/**/*.js`) ?? [];
+        const files = glob.sync(`${tempDir}/clean/*.js`) ?? [];
         if (!files.length) {
             resolve();
         }
@@ -249,4 +282,11 @@ function cleanup() {
     if (fs.existsSync(tempDir)) {
         fs.rmSync(tempDir, { recursive: true });
     }
+}
+
+async function prepOutput() {
+    if (fs.existsSync(outDir)) {
+        await fs.promises.rm(outDir, { recursive: true });
+    }
+    await fs.promises.mkdir(outDir, { recursive: true });
 }
