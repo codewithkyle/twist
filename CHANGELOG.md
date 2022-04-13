@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   new build types ((#10)[https://github.com/codewithkyle/twist/issues/10])
+-   new build types ([#10](https://github.com/codewithkyle/twist/issues/10))
     -   esbuild
     -   babel
     -   tsc (TypeScript)
@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
--   [esbuild](https://esbuild.github.io/) dependency ((#10)[https://github.com/codewithkyle/twist/issues/10])
+-   [esbuild](https://esbuild.github.io/) dependency ([#10](https://github.com/codewithkyle/twist/issues/10))
 
 ## [1.5.1] - 2021-12-21
 
