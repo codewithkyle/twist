@@ -157,6 +157,23 @@ switch (type) {
             });
         break;
     case "babel":
+        new Promise(async (resolve, reject) => {
+            const babel = require("@babel/core");
+            for (const file of files) {
+                const fileName = file.replace(/.*[\\\/]/g, "").trim();
+                const { code, map, ast } = await babel.transformFileAsync(
+                    file,
+                    options
+                );
+                await fs.promises.writeFile(path.join(tempDir, fileName), code);
+            }
+            resolve();
+        }).then(async () => {
+            await scrub();
+            await prepOutput();
+            await relocate();
+            await cleanup();
+        });
         break;
     default:
         new Promise((resolve, reject) => {
@@ -178,7 +195,7 @@ switch (type) {
                 await scrub();
                 await prepOutput();
                 await relocate();
-                cleanup();
+                await cleanup();
             })
             .catch((error) => {
                 console.log(error);
