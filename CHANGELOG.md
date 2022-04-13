@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   [esbuild](https://esbuild.github.io/) dependency ((#10)[https://github.com/codewithkyle/twist/issues/10])
 
+## [1.5.1] - 2021-12-21
+
+### Fixed
+
+-   minify flag bug ([#9](https://github.com/codewithkyle/twist/issues/9))
+
 ## [1.5.0] - 2021-11-06
 
 ### Added
@@ -94,7 +100,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   source directory override flag
 -   output directory override flag
 
-[unreleased]: https://github.com/codewithkyle/twist/compare/v1.4.0...HEAD
+[unreleased]: https://github.com/codewithkyle/twist/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/codewithkyle/twist/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/codewithkyle/twist/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/codewithkyle/twist/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/codewithkyle/twist/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/codewithkyle/twist/compare/v1.2.0...v1.3.0
