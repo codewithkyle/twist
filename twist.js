@@ -6,7 +6,9 @@ const version = packageJson.engines.node;
 
 if (!semver.satisfies(process.version, version)) {
     const rawVersion = version.replace(/[^\d\.]*/, "");
-    console.log(`Twist requires Node v${rawVersion} or newer and you're using ${process.version}`);
+    console.log(
+        `Twist requires Node v${rawVersion} or newer and you're using ${process.version}`
+    );
     process.exit(1);
 }
 
@@ -19,7 +21,7 @@ const argv = yargs(hideBin(process.argv)).argv;
 let srcDir = argv?.src ?? "./src";
 srcDir = path.resolve(cwd, srcDir);
 
-let outDir = argv?.outdir ?? "./public/js";
+let outDir = argv?.out ?? "./public/js";
 outDir = path.resolve(cwd, outDir);
 
 let pathOverride = argv?.path?.trim()?.replace(/\/$/, "") ?? ".";
@@ -39,6 +41,18 @@ if (argv?.minify) {
     config.minify = minify;
 }
 
+let type = "none";
+if (argv?.type) {
+    type = argv.type?.toString().toLowerCase();
+}
+const types = ["esbuild", "tsc", "bable", "none"];
+if (!types.includes(type)) {
+    console.log(
+        `Invalid type: ${type}. Only ${types.join(", ")} are supported.`
+    );
+    process.exit(1);
+}
+
 const fs = require("fs");
 const tempDir = path.join(__dirname, "temp");
 if (fs.existsSync(tempDir)) {
@@ -46,18 +60,22 @@ if (fs.existsSync(tempDir)) {
 }
 fs.mkdirSync(tempDir);
 
-const esbuildOptions = Object.assign(
-    {
-        bundle: false,
-        minify: true,
-        format: "esm",
-        target: "es2020",
-    },
-    config
-);
-esbuildOptions.outdir = tempDir;
-
-const doBuild = argv?.["skip-build"] ? false : true;
+let options = {};
+switch (type) {
+    case "esbuild":
+        options = Object.assign(
+            {
+                bundle: false,
+                minify: true,
+                format: "esm",
+                target: "es2020",
+            },
+            config
+        );
+        options.outdir = tempDir;
+    default:
+        break;
+}
 
 const glob = require("glob");
 const tsFiles = glob.sync(`${srcDir}/**/*.ts`) ?? [];
@@ -72,55 +90,68 @@ const tsxFiles = glob.sync(`${srcDir}/**/*.tsx`) ?? [];
 const mjsFiles = glob.sync(`${srcDir}/**/*.mjs`) ?? [];
 const cjsFiles = glob.sync(`${srcDir}/**/*.cjs`) ?? [];
 
-if (doBuild) {
-    const files = [...tsFiles, ...jsFiles, ...jsxFiles, ...tsxFiles, ...mjsFiles, ...cjsFiles];
-    esbuildOptions.entryPoints = files;
-    const { build } = require("esbuild");
-    build(esbuildOptions)
-        .then(async () => {
-            await scrub();
-            if (fs.existsSync(outDir)) {
-                await fs.promises.rmdir(outDir, { recursive: true });
-            }
-            await fs.promises.mkdir(outDir, { recursive: true });
-            await relocate();
-            cleanup();
-        })
-        .catch((e) => {
-            console.log(e);
-            process.exit(1);
-        });
+let files = [];
+if (type === "none") {
+    files = [...jsFiles, ...cjsFile, ...mjsFiles];
 } else {
-    const files = [...jsFiles];
-    esbuildOptions.entryPoints = files;
-    new Promise((resolve, reject) => {
-        let copied = 0;
-        for (let i = 0; i < files.length; i++) {
-            const fileName = files[i].replace(/.*[\/\\]/, "");
-            fs.copyFile(files[i], path.join(tempDir, fileName), (error) => {
-                if (error) {
-                    reject(error);
+    files = [
+        ...tsFiles,
+        ...jsFiles,
+        ...jsxFiles,
+        ...tsxFiles,
+        ...mjsFiles,
+        ...cjsFiles,
+    ];
+}
+
+switch (type) {
+    case "esbuild":
+        options.entryPoints = files;
+        const { build } = require("esbuild");
+        build(options)
+            .then(async () => {
+                await scrub();
+                if (fs.existsSync(outDir)) {
+                    await fs.promises.rm(outDir, { recursive: true });
                 }
-                copied++;
-                if (copied === files.length) {
-                    resolve();
-                }
+                await fs.promises.mkdir(outDir, { recursive: true });
+                await relocate();
+                cleanup();
+            })
+            .catch((e) => {
+                console.log(e);
+                process.exit(1);
             });
-        }
-    })
-        .then(async () => {
-            await scrub();
-            if (fs.existsSync(outDir)) {
-                await fs.promises.rmdir(outDir, { recursive: true });
+    default:
+        new Promise((resolve, reject) => {
+            let copied = 0;
+            for (let i = 0; i < files.length; i++) {
+                const fileName = files[i].replace(/.*[\/\\]/, "");
+                fs.copyFile(files[i], path.join(tempDir, fileName), (error) => {
+                    if (error) {
+                        reject(error);
+                    }
+                    copied++;
+                    if (copied === files.length) {
+                        resolve();
+                    }
+                });
             }
-            await fs.promises.mkdir(outDir, { recursive: true });
-            await relocate();
-            cleanup();
         })
-        .catch((error) => {
-            console.log(error);
-            process.exit(1);
-        });
+            .then(async () => {
+                await scrub();
+                if (fs.existsSync(outDir)) {
+                    await fs.promises.rm(outDir, { recursive: true });
+                }
+                await fs.promises.mkdir(outDir, { recursive: true });
+                await relocate();
+                cleanup();
+            })
+            .catch((error) => {
+                console.log(error);
+                process.exit(1);
+            });
+        break;
 }
 
 function scrub() {
@@ -139,17 +170,32 @@ function scrub() {
                 let data = buffer.toString();
 
                 /** Grab everything between the string values for the import statement */
-                let importFilePaths = data.match(/(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g);
+                let importFilePaths = data.match(
+                    /(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g
+                );
                 if (importFilePaths) {
                     importFilePaths.map((path) => {
-                        if (new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(path) === false) {
+                        if (
+                            new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(
+                                path
+                            ) === false
+                        ) {
                             /** Remove everything in the path except the file name */
                             let pathFileName = path
                                 .replace(/.*[\/\\]/g, "")
-                                .replace(/\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g, "")
+                                .replace(
+                                    /\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g,
+                                    ""
+                                )
                                 .trim();
-                            data = data.replace(`"${path}"`, `"${pathOverride}/${pathFileName}.js"`);
-                            data = data.replace(`'${path}'`, `"${pathOverride}/${pathFileName}.js"`);
+                            data = data.replace(
+                                `"${path}"`,
+                                `"${pathOverride}/${pathFileName}.js"`
+                            );
+                            data = data.replace(
+                                `'${path}'`,
+                                `"${pathOverride}/${pathFileName}.js"`
+                            );
                         }
                     });
                 }
@@ -200,5 +246,7 @@ function relocate() {
 }
 
 function cleanup() {
-    fs.rmdirSync(tempDir, { recursive: true });
+    if (fs.existsSync(tempDir)) {
+        fs.rmSync(tempDir, { recursive: true });
+    }
 }
