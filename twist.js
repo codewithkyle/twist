@@ -99,7 +99,7 @@ const cjsFiles = glob.sync(`${srcDir}/**/*.cjs`) ?? [];
 
 let files = [];
 if (type === "none") {
-    files = [...jsFiles, ...cjsFile, ...mjsFiles];
+    files = [...jsFiles, ...cjsFiles, ...mjsFiles];
 } else {
     files = [
         ...tsFiles,

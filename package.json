@@ -15,7 +15,8 @@
     "scripts": {
         "test:esbuild": "node ./twist.js --src=./test/src --type=esbuild --config=./test/config.js --out=./test/public/js",
         "test:tsc": "node ./twist.js --src=./test/src --type=tsc --out=./test/public/js",
-        "test:babel": "node ./twist.js --src=./test/src --type=babel --out=./test/public/js"
+        "test:babel": "node ./twist.js --src=./test/src --type=babel --out=./test/public/js",
+        "test:none": "node ./twist.js --src=./test/src --type=none --out=./test/public/js"
     },
     "author": "Kyle Andrews <codingwithkyle@gmail.com>",
     "license": "MIT",
