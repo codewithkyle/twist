@@ -1,6 +1,6 @@
 {
     "name": "@codewithkyle/twist",
-    "version": "1.5.1",
+    "version": "2.0.0",
     "description": "Give your Vanilla JS a little twist.",
     "main": "twist.js",
     "files": [
@@ -13,20 +13,30 @@
         "node": ">=14.5.0"
     },
     "scripts": {
-        "test": "node ./twist.js --src=./test/src --config=./test/config.js --outdir=./test/public/js && serve ./test/public"
+        "test:esbuild": "node ./twist.js --src=./test/src --type=esbuild --config=./test/config.js --out=./test/public/js",
+        "test:tsc": "node ./twist.js --src=./test/src --type=tsc --out=./test/public/js",
+        "test:babel": "node ./twist.js --src=./test/src --type=babel --out=./test/public/js",
+        "test:none": "node ./twist.js --src=./test/src --type=none --out=./test/public/js"
     },
     "author": "Kyle Andrews <codingwithkyle@gmail.com>",
     "license": "MIT",
     "dependencies": {
-        "esbuild": "^0.13.12",
-        "esinstall": "^1.1.7",
         "glob": "^7.2.0",
         "semver": "^7.3.5",
         "uuid": "^8.3.2",
         "yargs": "^16.2.0"
     },
     "devDependencies": {
+        "@babel/core": "^7.17.9",
+        "esbuild": "^0.14.36",
+        "esinstall": "^1.1.7",
         "preact": "^10.5.15",
-        "serve": "^11.3.2"
+        "serve": "^11.3.2",
+        "typescript": "^4.6.3"
+    },
+    "peerDependencies": {
+        "@babel/core": "x",
+        "esbuild": "x",
+        "typescript": "x"
     }
 }

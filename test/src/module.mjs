@@ -1,1 +1,3 @@
-console.log("Hello world!");
+import preact from "preact";
+
+console.log("Hello world!", preact);
