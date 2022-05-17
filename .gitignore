@@ -4,3 +4,4 @@ node_modules
 web_modules
 test/public/js
 temp
+clean

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2022-05-17
+
+### Fixed
+
+-   `clean/` directory name conflict with internal folder structures
+-   fixed directory read error bug
+
+### Removed
+
+-   unused `uuid` dependency
+
 ## [2.0.0] - 2022-04-13
 
 ### Added

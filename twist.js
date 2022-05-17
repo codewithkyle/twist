@@ -54,12 +54,19 @@ if (type !== "none" && type !== "tsc") {
     }
 }
 
-const fs = require("fs");
 const tempDir = path.join(__dirname, "temp");
+const cleanDir = path.join(__dirname, "clean");
+
+const fs = require("fs");
 if (fs.existsSync(tempDir)) {
     cleanup();
 }
 fs.mkdirSync(tempDir);
+
+if (fs.existsSync(cleanDir)) {
+    cleanup();
+}
+fs.mkdirSync(cleanDir);
 
 let options = {};
 switch (type) {
@@ -205,76 +212,77 @@ switch (type) {
 }
 
 function scrub() {
-    const { v4: uuid } = require("uuid");
     return new Promise(async (resolve) => {
         const files = glob.sync(`${tempDir}/**/*`) ?? [];
-        await fs.promises.mkdir(path.join(tempDir, "clean"));
         let scrubbed = 0;
         for (let i = 0; i < files.length; i++) {
             const filePath = files[i];
-            const fileName = filePath
-                .replace(/.*[\\\/]|\.\w{2,4}$/g, "")
-                .trim();
-            fs.readFile(filePath, (error, buffer) => {
-                if (error) {
-                    console.log(error);
-                    process.exit(1);
-                }
-
-                let data = buffer.toString();
-
-                /** Grab everything between the string values for the import statement */
-                let importFilePaths = data.match(
-                    /(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g
-                );
-                if (importFilePaths) {
-                    importFilePaths.map((path) => {
-                        if (
-                            new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(
-                                path
-                            ) === false
-                        ) {
-                            /** Remove everything in the path except the file name */
-                            let pathFileName = path
-                                .replace(/.*[\/\\]/g, "")
-                                .replace(
-                                    /\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g,
-                                    ""
-                                )
-                                .trim();
-                            data = data.replace(
-                                `"${path}"`,
-                                `"${pathOverride}/${pathFileName}.js"`
-                            );
-                            data = data.replace(
-                                `'${path}'`,
-                                `"${pathOverride}/${pathFileName}.js"`
-                            );
-                        }
-                    });
-                }
-                fs.writeFile(
-                    `${tempDir}/clean/${fileName}.js`,
-                    data,
-                    (error) => {
-                        if (error) {
-                            console.log(error);
-                            process.exit(1);
-                        }
-                        scrubbed++;
-                        if (scrubbed === files.length) {
-                            resolve();
-                        }
+            console.log(filePath);
+            if (!fs.lstatSync(filePath).isDirectory()) {
+                const fileName = filePath
+                    .replace(/.*[\\\/]|\.\w{2,4}$/g, "")
+                    .trim();
+                fs.readFile(filePath, (error, buffer) => {
+                    if (error) {
+                        console.log(error);
+                        process.exit(1);
                     }
-                );
-            });
+
+                    let data = buffer.toString();
+
+                    /** Grab everything between the string values for the import statement */
+                    let importFilePaths = data.match(
+                        /(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g
+                    );
+                    if (importFilePaths) {
+                        importFilePaths.map((path) => {
+                            if (
+                                new RegExp(/^(http\:\/\/)|^(https\:\/\/)/).test(
+                                    path
+                                ) === false
+                            ) {
+                                /** Remove everything in the path except the file name */
+                                let pathFileName = path
+                                    .replace(/.*[\/\\]/g, "")
+                                    .replace(
+                                        /\.ts$|\.js$|\.mjs$|\.cjs$|\.jsx$|\.tsx$/g,
+                                        ""
+                                    )
+                                    .trim();
+                                data = data.replace(
+                                    `"${path}"`,
+                                    `"${pathOverride}/${pathFileName}.js"`
+                                );
+                                data = data.replace(
+                                    `'${path}'`,
+                                    `"${pathOverride}/${pathFileName}.js"`
+                                );
+                            }
+                        });
+                    }
+                    fs.writeFile(
+                        `${cleanDir}/${fileName}.js`,
+                        data,
+                        (error) => {
+                            if (error) {
+                                console.log(error);
+                                process.exit(1);
+                            }
+                            scrubbed++;
+                            if (scrubbed === files.length) {
+                                resolve();
+                            }
+                        }
+                    );
+                });
+            }
         }
     });
 }
 
 function relocate() {
     return new Promise((resolve) => {
-        const files = glob.sync(`${tempDir}/clean/*.js`) ?? [];
+        const files = glob.sync(`${cleanDir}/*.js`) ?? [];
         if (!files.length) {
             resolve();
         }
@@ -298,6 +306,9 @@ function relocate() {
 function cleanup() {
     if (fs.existsSync(tempDir)) {
         fs.rmSync(tempDir, { recursive: true });
+    }
+    if (fs.existsSync(cleanDir)) {
+        fs.rmSync(cleanDir, { recursive: true });
     }
 }
 
