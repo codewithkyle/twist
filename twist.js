@@ -217,7 +217,6 @@ function scrub() {
         let scrubbed = 0;
         for (let i = 0; i < files.length; i++) {
             const filePath = files[i];
-            console.log(filePath);
             if (!fs.lstatSync(filePath).isDirectory()) {
                 const fileName = filePath
                     .replace(/.*[\\\/]|\.\w{2,4}$/g, "")
@@ -275,6 +274,11 @@ function scrub() {
                         }
                     );
                 });
+            } else {
+                scrubbed++;
+                if (scrubbed === files.length) {
+                    resolve();
+                }
             }
         }
     });
