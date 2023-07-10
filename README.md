@@ -14,14 +14,11 @@ By default we will look for JavaScript/TypeScript files in the `src/` directory 
 
 You can also provide the `--path` flag if you need to remap your imports to a CDN/external URL.
 
-```json
-// package.json
-{
-    "scripts": {
-        "build": "twist --src=./path-to/source --out=./public/js --type=esbuild --config=./esbuild.config.js --path='https://cdn.example.com/'"
-    }
-}
+```bash
+twist --src=./path-to/source --out=./public/js --type=esbuild --config=./esbuild.config.js --path='https://cdn.example.com/'
 ```
+
+If you are using dynamic imports you can add the `--dynamic` flag.
 
 ### Build Types
 
