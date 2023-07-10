@@ -231,7 +231,7 @@ function scrub() {
 
                     /** Grab everything between the string values for the import statement */
                     let importFilePaths = data.match(
-                        /(?<=from[\'\"]).*?(?=[\'\"]\;)|(?<=from\s+[\'\"]).*?(?=[\'\"]\;)/g
+                        /(?<=\bfrom\b[\'\"]).*?(?=[\'\"]\;)|(?<=\bfrom\b\s+[\'\"]).*?(?=[\'\"]\;)|(?<=\bimport\b[\'\"]).*?(?=[\'\"])|(?<=\bimport\b\s+[\'\"]).*?(?=[\'\"])/g
                     );
                     if (importFilePaths) {
                         importFilePaths.map((path) => {
