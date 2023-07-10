@@ -1,4 +1,8 @@
-import preact from "preact";
+import { Component } from "preact";
 import "globals";
 
-console.log("Hello world!", preact);
+console.log(Component);
+
+import("dynamic").then(module => {
+    console.log("Dynamic import", module);
+});

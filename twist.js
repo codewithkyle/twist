@@ -26,6 +26,8 @@ outDir = path.resolve(cwd, outDir);
 
 let pathOverride = argv?.path?.trim()?.replace(/\/$/, "") ?? ".";
 
+let includeDynamic = argv?.dynamic ? true : false;
+
 let type = "none";
 if (argv?.type) {
     type = argv.type?.toString().toLowerCase();
@@ -230,9 +232,14 @@ function scrub() {
                     let data = buffer.toString();
 
                     /** Grab everything between the string values for the import statement */
-                    let importFilePaths = data.match(
-                        /(?<=\bfrom\b[\'\"]).*?(?=[\'\"]\;)|(?<=\bfrom\b\s+[\'\"]).*?(?=[\'\"]\;)|(?<=\bimport\b[\'\"]).*?(?=[\'\"])|(?<=\bimport\b\s+[\'\"]).*?(?=[\'\"])/g
-                    );
+                    let importFilePaths;
+                    if (includeDynamic){
+                        importFilePaths = data.match(/(?<=\bfrom\b[\'\"]).*?(?=[\'\"]\;)|(?<=\bfrom\b\s+[\'\"]).*?(?=[\'\"]\;)|(?<=\bimport\b[\'\"]).*?(?=[\'\"])|(?<=\bimport\b\s+[\'\"]).*?(?=[\'\"])|(?<=\bimport\b\([\'\"]).*?(?=[\'\"])/g);
+                    } else {
+                        importFilePaths = data.match(
+                            /(?<=\bfrom\b[\'\"]).*?(?=[\'\"]\;)|(?<=\bfrom\b\s+[\'\"]).*?(?=[\'\"]\;)|(?<=\bimport\b[\'\"]).*?(?=[\'\"])|(?<=\bimport\b\s+[\'\"]).*?(?=[\'\"])/g
+                        );
+                    }
                     if (importFilePaths) {
                         importFilePaths.map((path) => {
                             if (
